@@ -8,10 +8,21 @@
 
 #import "TYImageEditViewController.h"
 #import "ChooseFilterView.h"
+#import "InstaFilters.h"
+#import "UIImage+IF.h"
 
-@interface TYImageEditViewController ()
+
+@interface TYImageEditViewController ()<IFVideoCameraDelegate>
+{
+    UIImageView * _EditImageView;
+
+}
+@property (nonatomic, strong) IFVideoCamera *videoCamera;
+@property (nonatomic, unsafe_unretained) IFFilterType currentType;
 
 @end
+
+
 
 @implementation TYImageEditViewController
 
@@ -21,7 +32,7 @@
     UIView * SuperView = self.view;
     self.navigationItem.title = @"选择滤镜";
     
-    UIImageView * _EditImageView = ({
+     _EditImageView = ({
         _EditImageView = [[UIImageView alloc] init];
         SuperView.backgroundColor = [UIColor lightGrayColor];
         _EditImageView.image = _EditImage;
@@ -38,8 +49,11 @@
     ChooseFilterView * _ChooseFV = ({
         _ChooseFV = [[ChooseFilterView alloc] init];
         [SuperView addSubview:_ChooseFV];
+//        通过block 返回点击的是哪一个滤镜效果
         [_ChooseFV returnFilterid:^(NSString *Filterid) {
-            NSLog(@"你当前选择的是第%@个滤镜",Filterid);
+            self.currentType = [Filterid intValue];
+            [self.videoCamera switchFilter:[Filterid intValue]];
+            
         }];
         
         [_ChooseFV mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -50,7 +64,29 @@
         }];
         _ChooseFV;
     });
+//    实时画布的渲染
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.videoCamera = [[IFVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPresetPhoto cameraPosition:AVCaptureDevicePositionBack highVideoQuality:NO];
+        self.videoCamera.rawImage =self.EditImage;
+        self.videoCamera.delegate = self;
+    });
     
+}
+//两个代理
+//视频
+- (void)IFVideoCameraDidFinishCaptureStillImage:(IFVideoCamera *)videoCamera {
+}
+
+//图片的渲染结果
+- (void) IFSwitchFilterFinishToImage:(UIImage *)images {
+//    为滤镜添加转场效果 （渐变）
+    [_EditImageView setImage:images];
+    CATransition *transition = [CATransition animation];
+    transition.duration = 0.35;
+    transition.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    transition.type = @"fade";
+    transition.delegate = self;
+    [_EditImageView.layer addAnimation:transition forKey:nil];
 }
 
 
