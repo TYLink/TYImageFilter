@@ -1,0 +1,27 @@
+//
+//  TYImageFilter-Prefix.pch
+//  TYImageFilter
+//
+//  Created by TianYang on 16/3/17.
+//  Copyright © 2016年 Tianyang. All rights reserved.
+//
+
+#ifndef TYImageFilter_Prefix_pch
+#define TYImageFilter_Prefix_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+
+#ifdef __OBJC__
+
+#define SCREEN_WIDTH [[UIScreen mainScreen] bounds].size.width
+#define SCREEN_HEIGHT [[UIScreen mainScreen] bounds].size.height
+
+
+#import "Masonry.h"         // Masonry     屏幕适配 相对布局第三方类库
+#import "SettingLabel.h"    // 自定义对UILabel 、 UIButton 上的文字进行格式设置的类库
+
+#endif
+
+#endif /* TYImageFilter_Prefix_pch */
